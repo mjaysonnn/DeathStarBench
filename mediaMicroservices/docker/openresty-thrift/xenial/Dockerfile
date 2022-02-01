@@ -7,14 +7,13 @@ LABEL maintainer="Yu Gan <yg397@cornell.edu>"
 
 # Docker Build Arguments
 ARG RESTY_VERSION="1.15.8.1rc1"
-ARG RESTY_LUAROCKS_VERSION="2.4.4"
+ARG RESTY_LUAROCKS_VERSION="3.5.0"
 ARG RESTY_OPENSSL_VERSION="1.1.0j"
 ARG RESTY_PCRE_VERSION="8.42"
 ARG JAEGER_TRACING_VERSION="0.4.2"
 ARG NGINX_OPENTRACING_VERSION="0.8.0"
 ARG OPENTRACING_CPP_VERSION="1.5.1"
 ARG RESTY_J="1"
-ARG NUM_CPUS="40"
 ARG RESTY_CONFIG_OPTIONS="\
     --with-file-aio \
     --with-http_addition_module \
@@ -96,7 +95,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && if [ -n "${RESTY_EVAL_PRE_CONFIGURE}" ]; then eval $(echo ${RESTY_EVAL_PRE_CONFIGURE}); fi \
     && curl -fSL https://www.openssl.org/source/openssl-${RESTY_OPENSSL_VERSION}.tar.gz -o openssl-${RESTY_OPENSSL_VERSION}.tar.gz \
     && tar xzf openssl-${RESTY_OPENSSL_VERSION}.tar.gz \
-    && curl -fSL https://ftp.pcre.org/pub/pcre/pcre-${RESTY_PCRE_VERSION}.tar.gz -o pcre-${RESTY_PCRE_VERSION}.tar.gz \
+    && curl -fSL http://ftp.cs.stanford.edu/pub/exim/pcre/pcre-${RESTY_PCRE_VERSION}.tar.gz -o pcre-${RESTY_PCRE_VERSION}.tar.gz \
     && tar xzf pcre-${RESTY_PCRE_VERSION}.tar.gz \
   ### Build opentracing-cpp
     && cd /tmp \
@@ -110,8 +109,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
              -DBUILD_STATIC_LIBS=OFF \
              -DBUILD_TESTING=OFF \
        .. \
-    && make -j${NUM_CPUS} \
-    && make -j${NUM_CPUS} install \
+    && make -j$(nproc) \
+    && make -j$(nproc) install \
     && cd /tmp \
     && rm -rf opentracing-cpp-${OPENTRACING_CPP_VERSION}.tar.gz \
               opentracing-cpp-${OPENTRACING_CPP_VERSION} \
@@ -125,9 +124,15 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && rm -rf lua-resty-hmac \
 
   ### Add Jaeger plugin
-    && cd /usr/local/lib \
-    && curl -fSL https://github.com/jaegertracing/jaeger-client-cpp/releases/download/v${JAEGER_TRACING_VERSION}/libjaegertracing_plugin.linux_amd64.so -o libjaegertracing_plugin.so
-
+    && curl -fSL https://github.com/jaegertracing/jaeger-client-cpp/archive/refs/tags/v${JAEGER_TRACING_VERSION}.tar.gz -o v${JAEGER_TRACING_VERSION}.tar.gz \
+    && tar xf v${JAEGER_TRACING_VERSION}.tar.gz \
+    && cd jaeger-client-cpp-${JAEGER_TRACING_VERSION} \
+    && mkdir build && cd build \
+    && cmake CXXFLAGS="-Wno-error=deprecated-copy" -DCMAKE_INSTALL_PREFIX=/opt -DJAEGERTRACING_PLUGIN=ON -DHUNTER_CONFIGURATION_TYPES=Release -DHUNTER_BUILD_SHARED_LIBS=OFF .. \
+    && make && make install \
+    && cp libjaegertracing_plugin.so /usr/local/lib/ \
+    && cd ../.. && rm -rf v${JAEGER_TRACING_VERSION}.tar.gz \
+    && rm -rf jaeger-client-cpp-${JAEGER_TRACING_VERSION} && rm -rf /root/.hunter
 
 RUN cd /usr/local \
     && curl -fSL https://github.com/opentracing-contrib/nginx-opentracing/archive/v${NGINX_OPENTRACING_VERSION}.tar.gz -o nginx-opentracing-${NGINX_OPENTRACING_VERSION}.tar.gz \
@@ -148,7 +153,7 @@ RUN cd /usr/local \
         pcre-${RESTY_PCRE_VERSION}.tar.gz pcre-${RESTY_PCRE_VERSION}
 
 RUN cd /tmp \
-    && curl -fSL https://github.com/luarocks/luarocks/archive/${RESTY_LUAROCKS_VERSION}.tar.gz -o luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
+    && curl -fSL  https://luarocks.github.io/luarocks/releases/luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz -o luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
     && tar xzf luarocks-${RESTY_LUAROCKS_VERSION}.tar.gz \
     && cd luarocks-${RESTY_LUAROCKS_VERSION} \
     && ./configure \
@@ -190,8 +195,8 @@ RUN cd /usr/local/openresty/lualib/thrift/src \
     && cd cmake-build \
     && cmake -DCMAKE_BUILD_TYPE=Release \
        .. \
-    && make -j${NUM_CPUS} \
-    && make -j${NUM_CPUS} install
+    && make -j$(nproc) \
+    && make -j$(nproc) install
 #    && cd /tmp
 #    && rm -rf lua-bridge-tracer
 
