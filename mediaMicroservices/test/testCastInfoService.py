@@ -21,9 +21,9 @@ def wrtie_cast_info():
   for i in range(100):
     req_id = random.getrandbits(63)
     cast_id = i
-    name = "name_" + str(i)
+    name = f"name_{str(i)}"
     gender = random.randint(0, 1)
-    intro = "intro_" + str(i)
+    intro = f"intro_{str(i)}"
     client.WriteCastInfo(req_id, cast_id, name, gender, intro, {})
   transport.close()
 
@@ -34,11 +34,9 @@ def read_cast_info():
   client = CastInfoService.Client(protocol)
 
   transport.open()
-  for i in range(100):
+  for _ in range(100):
     req_id = random.getrandbits(63)
-    cast_ids = set()
-    for j in range(10):
-      cast_ids.add(random.randint(0, 99))
+    cast_ids = {random.randint(0, 99) for _ in range(10)}
     print(client.ReadCastInfo(req_id, cast_ids, {}))
   transport.close()
 
@@ -47,6 +45,6 @@ if __name__ == '__main__':
     wrtie_cast_info()
     read_cast_info()
   except ServiceException as se:
-    print('%s' % se.message)
+    print(f'{se.message}')
   except Thrift.TException as tx:
-    print('%s' % tx.message)
+    print(f'{tx.message}')

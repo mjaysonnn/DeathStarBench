@@ -16,38 +16,33 @@ args = parser.parse_args()
 
 for service_name in args.service_name:
   if args.dir_path[-1] != '/':
-    path = args.dir_path + "/" + service_name
+    path = f"{args.dir_path}/{service_name}"
   else:
     path = args.dir_path + service_name
   try:
     os.mkdir(path)
   except OSError as e:
-    if e.errno == errno.EEXIST and os.path.isdir(path):
-      pass
-    else:
+    if e.errno != errno.EEXIST or not os.path.isdir(path):
       print ("Creation of the directory %s failed" % service_name)
-  
-  with open(path + "/init-config.js", "w") as file:
-    obj = dict()
-    obj["_id"] = service_name + "-mongodb-config"
-    obj["configsvr"] = True
-    obj["version"] = 1
-    obj["members"] = list()
+
+  with open(f"{path}/init-config.js", "w") as file:
+    obj = {
+        "_id": f"{service_name}-mongodb-config",
+        "configsvr": True,
+        "version": 1,
+        "members": [],
+    }
     if args.config_num == 1:
-      child_obj = dict()
-      child_obj["_id"] = 1
-      child_obj["host"] = service_name + "-mongodb-config:27017"
+      child_obj = {"_id": 1, "host": f"{service_name}-mongodb-config:27017"}
       obj["members"].append(child_obj)
     else:
       for i in range(1, args.config_num + 1):
-        child_obj = dict()
-        child_obj["_id"] = i
-        child_obj["host"] = service_name + "-mongodb-config_" + str(i) + ":27017"
+        child_obj = {"_id": i, "host": f"{service_name}-mongodb-config_{str(i)}:27017"}
         obj["members"].append(child_obj)
     file.write("rs.initiate(\n")
     json.dump(obj, file, indent=2)
     file.write("\n)")
-  
+
   with open(path + "/init-router.js", "w") as file:
     for i in range(1, args.shard_num + 1):
       for j in range(1, args.replica_num + 1):
@@ -58,22 +53,20 @@ for service_name in args.service_name:
           hostname = service_name + "-mongodb-shard-" + str(i) + "_" + str(j)
         file.write("sh.addShard(\"" + shard_name + "/" + hostname + ":27017\")\n")
       file.write("\n")
-  
+
   for i in range(1, args.shard_num + 1):
     with open(path + "/init-shard_" + str(i) + ".js", "w") as file:
-      obj = dict()
+      obj = {}
       obj["_id"] = service_name + "-mongodb-shard-" + str(i)
       obj["version"] = 1
-      obj["members"] = list()
+      obj["members"] = []
       if args.replica_num == 0:
-        child_obj = dict()
-        child_obj["_id"] = 1
+        child_obj = {"_id": 1}
         child_obj["host"] = service_name + "-mongodb-shard-" + str(i) + ":27017"
         obj["members"].append(child_obj)
       else:
         for j in range(1, args.replica_num + 1):
-          child_obj = dict()
-          child_obj["_id"] = j
+          child_obj = {"_id": j}
           child_obj["host"] = service_name + "-mongodb-shard-" + str(i) + "_" + str(j) + ":27017"
           obj["members"].append(child_obj)
       file.write("rs.initiate(\n")

@@ -18,7 +18,7 @@ def main():
     client = UniqueIdService.Client(protocol)
 
     transport.open()
-    for i in range (1, 100) :
+    for _ in range (1, 100):
         req_id = random.getrandbits(64) - 2**63
         client.UploadUniqueId(req_id)
 
@@ -29,4 +29,4 @@ if __name__ == '__main__':
     try:
         main()
     except Thrift.TException as tx:
-        print('%s' % tx.message)
+        print(f'{tx.message}')

@@ -28,7 +28,7 @@ def main():
 
 
     transport.open()
-    for i in range (1, 2):
+    for _ in range (1, 2):
         req_id = random.getrandbits(64) - 2**63
         text = ''.join(random.choices(string.ascii_lowercase + string.digits, k=128))
         client.UploadText(req_id, text)
@@ -40,4 +40,4 @@ if __name__ == '__main__':
     try:
         main()
     except Thrift.TException as tx:
-        print('%s' % tx.message)
+        print(f'{tx.message}')

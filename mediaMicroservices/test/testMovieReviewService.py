@@ -24,7 +24,7 @@ def write_movie_review():
     req_id = random.getrandbits(63)
     timestamp = int(time() * 1000)
     movie_num = random.randint(0, 5)
-    movie_id = "movie_id_" + str(movie_num)
+    movie_id = f"movie_id_{movie_num}"
 
     client.UploadMovieReview(req_id, movie_id, i, timestamp, {})
   transport.close()
@@ -36,10 +36,10 @@ def read_movie_reviews():
   client = MovieReviewService.Client(protocol)
 
   transport.open()
-  for i in range(100):
+  for _ in range(100):
     req_id = random.getrandbits(63)
     movie_num = random.randint(0, 5)
-    movie_id = "movie_id_" + str(movie_num)
+    movie_id = f"movie_id_{movie_num}"
     start = random.randint(0, 10)
     stop = start + random.randint(1, 10)
 
@@ -52,6 +52,6 @@ if __name__ == '__main__':
     write_movie_review()
     read_movie_reviews()
   except ServiceException as se:
-    print('%s' % se.message)
+    print(f'{se.message}')
   except Thrift.TException as tx:
-    print('%s' % tx.message)
+    print(f'{tx.message}')

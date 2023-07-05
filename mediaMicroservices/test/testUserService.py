@@ -34,12 +34,12 @@ def main():
 
     transport.open()
     req_id = uuid.uuid4().int & (1<<32)
-    username = "username" + str(1)
-    password = "password" + str(1)
+    username = 'username1'
+    password = 'password1'
     try:
         client.UploadUserWithUsername(req_id, username, {"":""})
     except ttypes.ServiceException as se:
-        print('%s' % se.message)
+        print(f'{se.message}')
     transport.close()
 
 
@@ -47,4 +47,4 @@ if __name__ == '__main__':
     try:
         main()
     except Thrift.TException as tx:
-        print('%s' % tx.message)
+        print(f'{tx.message}')

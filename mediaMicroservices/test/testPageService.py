@@ -19,7 +19,7 @@ def read_page():
   transport.open()
   for i in range(100):
     req_id = random.getrandbits(63)
-    movie_id = "movie_id_" + str(i)
+    movie_id = f"movie_id_{str(i)}"
     print(client.ReadPage(req_id, movie_id, 0, 10, {}))
   transport.close()
 
@@ -27,6 +27,6 @@ if __name__ == '__main__':
   try:
     read_page()
   except ServiceException as se:
-    print('%s' % se.message)
+    print(f'{se.message}')
   except Thrift.TException as tx:
-    print('%s' % tx.message)
+    print(f'{tx.message}')
