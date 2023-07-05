@@ -19,12 +19,12 @@ def compose_review():
   client = ComposeReviewService.Client(protocol)
 
   transport.open()
-  for i in range(100):
+  for _ in range(100):
     req_id = random.getrandbits(63)
     unique_id = random.getrandbits(63)
     text = ''.join(random.choices(string.ascii_lowercase + string.digits, k=128))
     user_id = random.randint(0,5)
-    movie_id = "movie_id_" + str(random.randint(0,5))
+    movie_id = f"movie_id_{random.randint(0, 5)}"
     rating = random.randint(0, 10)
     client.UploadUniqueId(req_id, unique_id, {})
     client.UploadUserId(req_id, user_id, {})
@@ -38,6 +38,6 @@ if __name__ == '__main__':
   try:
     compose_review()
   except ServiceException as se:
-    print('%s' % se.message)
+    print(f'{se.message}')
   except Thrift.TException as tx:
-    print('%s' % tx.message)
+    print(f'{tx.message}')

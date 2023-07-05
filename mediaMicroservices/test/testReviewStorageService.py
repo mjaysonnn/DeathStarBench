@@ -29,7 +29,7 @@ def write_review():
     user_id = random.randint(0, 99)
     rating = random.randint(0, 10)
     text = ''.join(random.choices(string.ascii_lowercase + string.digits, k=256))
-    movie_id = "movie_id_" + str(movie_num)
+    movie_id = f"movie_id_{movie_num}"
 
     review = Review()
     review.req_id = req_id
@@ -51,11 +51,9 @@ def read_reviews():
   client = ReviewStorageService.Client(protocol)
 
   transport.open()
-  for i in range(100):
+  for _ in range(100):
     req_id = random.randint(0, 99)
-    review_ids = set()
-    for j in range(10):
-      review_ids.add(random.randint(0, 99))
+    review_ids = {random.randint(0, 99) for _ in range(10)}
     print(client.ReadReviews(req_id, review_ids, {}))
   transport.close()
 
@@ -64,6 +62,6 @@ if __name__ == '__main__':
     write_review()
     read_reviews()
   except ServiceException as se:
-    print('%s' % se.message)
+    print(f'{se.message}')
   except Thrift.TException as tx:
-    print('%s' % tx.message)
+    print(f'{tx.message}')

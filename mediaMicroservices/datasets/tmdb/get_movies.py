@@ -15,7 +15,7 @@ def worker(api_key, page_start, page_stop):
     movies += r.json()["results"]
     for i in range(len(movies)):
       movie_id = movies[i]["id"]
-      casts_url = "https://api.themoviedb.org/3/movie/" + str(movie_id) + "/credits"
+      casts_url = f"https://api.themoviedb.org/3/movie/{str(movie_id)}/credits"
       r = requests.request("GET", casts_url, params={"api_key": api_key})
       if (r.status_code != 200):
         print("Failed to get popular_movie", "status_code:", r.status_code, "message:", r.text)
@@ -35,7 +35,7 @@ def main():
   parser.add_option("--key", type="string", dest="api_key")
   (options, args) = parser.parse_args()
   movies = worker(options.api_key, options.start, options.stop + 1)
-  filename = "movies_" + str(options.start) + "_" + str(options.stop) + ".json"
+  filename = f"movies_{str(options.start)}_{str(options.stop)}.json"
   with open(filename, "w") as file:
     json.dump(movies, file, indent=2)
 

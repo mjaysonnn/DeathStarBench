@@ -21,7 +21,9 @@ from media_service.ttypes import *
 
 if len(sys.argv) <= 1 or sys.argv[1] == '--help':
     print('')
-    print('Usage: ' + sys.argv[0] + ' [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] [-novalidate] [-ca_certs certs] [-keyfile keyfile] [-certfile certfile] function [arg1 [arg2...]]')
+    print(
+        f'Usage: {sys.argv[0]} [-h host[:port]] [-u url] [-f[ramed]] [-s[sl]] [-novalidate] [-ca_certs certs] [-keyfile keyfile] [-certfile certfile] function [arg1 [arg2...]]'
+    )
     print('')
     print('Functions:')
     print('  void WriteCastInfo(i64 req_id, i64 cast_info_id, string name, bool gender, string intro,  carrier)')
@@ -53,21 +55,18 @@ if sys.argv[argi] == '-u':
     url = urlparse(sys.argv[argi + 1])
     parts = url[1].split(':')
     host = parts[0]
-    if len(parts) > 1:
-        port = int(parts[1])
-    else:
-        port = 80
+    port = int(parts[1]) if len(parts) > 1 else 80
     uri = url[2]
     if url[4]:
-        uri += '?%s' % url[4]
+        uri += f'?{url[4]}'
     http = True
     argi += 2
 
-if sys.argv[argi] == '-f' or sys.argv[argi] == '-framed':
+if sys.argv[argi] in ['-f', '-framed']:
     framed = True
     argi += 1
 
-if sys.argv[argi] == '-s' or sys.argv[argi] == '-ssl':
+if sys.argv[argi] in ['-s', '-ssl']:
     ssl = True
     argi += 1
 
@@ -105,20 +104,20 @@ protocol = TBinaryProtocol(transport)
 client = CastInfoService.Client(protocol)
 transport.open()
 
-if cmd == 'WriteCastInfo':
-    if len(args) != 6:
-        print('WriteCastInfo requires 6 args')
-        sys.exit(1)
-    pp.pprint(client.WriteCastInfo(eval(args[0]), eval(args[1]), args[2], eval(args[3]), args[4], eval(args[5]),))
-
-elif cmd == 'ReadCastInfo':
+if cmd == 'ReadCastInfo':
     if len(args) != 3:
         print('ReadCastInfo requires 3 args')
         sys.exit(1)
     pp.pprint(client.ReadCastInfo(eval(args[0]), eval(args[1]), eval(args[2]),))
 
+elif cmd == 'WriteCastInfo':
+    if len(args) != 6:
+        print('WriteCastInfo requires 6 args')
+        sys.exit(1)
+    pp.pprint(client.WriteCastInfo(eval(args[0]), eval(args[1]), args[2], eval(args[3]), args[4], eval(args[5]),))
+
 else:
-    print('Unrecognized method %s' % cmd)
+    print(f'Unrecognized method {cmd}')
     sys.exit(1)
 
 transport.close()

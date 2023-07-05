@@ -19,9 +19,9 @@ def upload_rating():
   client = RatingService.Client(protocol)
 
   transport.open()
-  for i in range (1, 100):
+  for _ in range (1, 100):
     req_id = random.getrandbits(63)
-    movie_id = "movie_id_" + str(random.randint(0, 4))
+    movie_id = f"movie_id_{random.randint(0, 4)}"
     rating = random.randint(0, 10)
     client.UploadRating(req_id, movie_id, rating, {})
 
@@ -32,6 +32,6 @@ if __name__ == '__main__':
   try:
     upload_rating()
   except ServiceException as se:
-    print('%s' % se.message)
+    print(f'{se.message}')
   except Thrift.TException as tx:
-    print('%s' % tx.message)
+    print(f'{tx.message}')

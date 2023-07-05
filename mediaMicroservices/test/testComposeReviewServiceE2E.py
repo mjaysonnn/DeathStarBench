@@ -27,8 +27,8 @@ def register_movies():
   movie_id_transport.open()
   for i in range(100):
     req_id = random.getrandbits(63)
-    title = "movie_title_" + str(i)
-    movie_id = "movie_id_" + str(i)
+    title = f"movie_title_{str(i)}"
+    movie_id = f"movie_id_{str(i)}"
     movie_id_client.RegisterMovieId(req_id, title, movie_id, {})
   movie_id_transport.close()
 
@@ -40,10 +40,10 @@ def register_users():
   user_transport.open()
   for i in range(100):
     req_id = random.getrandbits(63)
-    first_name = "first_" + str(i)
-    last_name = "last_" + str(i)
-    username = "username_" + str(i)
-    password = "password_" + str(i)
+    first_name = f"first_{str(i)}"
+    last_name = f"last_{str(i)}"
+    username = f"username_{str(i)}"
+    password = f"password_{str(i)}"
     user_client.RegisterUserWithId(req_id, first_name, last_name, username, password, i, {})
   user_transport.close()
 
@@ -98,13 +98,13 @@ def worker():
   movie_id_transport.open()
   user_transport.open()
 
-  for i in range(100):
+  for _ in range(100):
     req_id = random.getrandbits(63)
     user_id = random.randint(0, 99)
     movie_num = random.randint(0, 99)
     rating = random.randint(0, 10)
     text = ''.join(random.choices(string.ascii_lowercase + string.digits, k=256))
-    title = "movie_title_" + str(movie_num)
+    title = f"movie_title_{movie_num}"
 
     unique_id_client.UploadUniqueId(req_id, {})
     user_client.UploadUserWithUserId(req_id, user_id, {})
@@ -120,7 +120,7 @@ def main():
   register_movies()
   register_users()
   processes = []
-  for i in range(1):
+  for _ in range(1):
     p = Process(target=worker)
     processes.append(p)
     p.start()
@@ -133,6 +133,6 @@ if __name__ == '__main__':
   try:
     main()
   except ServiceException as se:
-    print('%s' % se.message)
+    print(f'{se.message}')
   except Thrift.TException as tx:
-    print('%s' % tx.message)
+    print(f'{tx.message}')

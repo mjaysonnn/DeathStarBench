@@ -74,15 +74,16 @@ class Client(Iface):
 class Processor(Iface, TProcessor):
     def __init__(self, handler):
         self._handler = handler
-        self._processMap = {}
-        self._processMap["UploadUniqueId"] = Processor.process_UploadUniqueId
+        self._processMap = {"UploadUniqueId": Processor.process_UploadUniqueId}
 
     def process(self, iprot, oprot):
         (name, type, seqid) = iprot.readMessageBegin()
         if name not in self._processMap:
             iprot.skip(TType.STRUCT)
             iprot.readMessageEnd()
-            x = TApplicationException(TApplicationException.UNKNOWN_METHOD, 'Unknown function %s' % (name))
+            x = TApplicationException(
+                TApplicationException.UNKNOWN_METHOD, f'Unknown function {name}'
+            )
             oprot.writeMessageBegin(name, TMessageType.EXCEPTION, seqid)
             x.write(oprot)
             oprot.writeMessageEnd()
@@ -143,24 +144,18 @@ class UploadUniqueId_args(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 1:
-                if ftype == TType.I64:
-                    self.req_id = iprot.readI64()
-                else:
-                    iprot.skip(ftype)
-            elif fid == 2:
-                if ftype == TType.MAP:
-                    self.carrier = {}
-                    (_ktype43, _vtype44, _size42) = iprot.readMapBegin()
-                    for _i46 in range(_size42):
-                        _key47 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        _val48 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
-                        self.carrier[_key47] = _val48
-                    iprot.readMapEnd()
-                else:
-                    iprot.skip(ftype)
-            else:
+            if fid == 1 and ftype == TType.I64:
+                self.req_id = iprot.readI64()
+            elif fid == 1 or fid == 2 and ftype != TType.MAP or fid != 2:
                 iprot.skip(ftype)
+            else:
+                self.carrier = {}
+                (_ktype43, _vtype44, _size42) = iprot.readMapBegin()
+                for _i46 in range(_size42):
+                    _key47 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    _val48 = iprot.readString().decode('utf-8') if sys.version_info[0] == 2 else iprot.readString()
+                    self.carrier[_key47] = _val48
+                iprot.readMapEnd()
             iprot.readFieldEnd()
         iprot.readStructEnd()
 
@@ -190,7 +185,7 @@ class UploadUniqueId_args(object):
     def __repr__(self):
         L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
@@ -225,12 +220,9 @@ class UploadUniqueId_result(object):
             (fname, ftype, fid) = iprot.readFieldBegin()
             if ftype == TType.STOP:
                 break
-            if fid == 1:
-                if ftype == TType.STRUCT:
-                    self.se = ServiceException()
-                    self.se.read(iprot)
-                else:
-                    iprot.skip(ftype)
+            if fid == 1 and ftype == TType.STRUCT:
+                self.se = ServiceException()
+                self.se.read(iprot)
             else:
                 iprot.skip(ftype)
             iprot.readFieldEnd()
@@ -254,7 +246,7 @@ class UploadUniqueId_result(object):
     def __repr__(self):
         L = ['%s=%r' % (key, value)
              for key, value in self.__dict__.items()]
-        return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+        return f"{self.__class__.__name__}({', '.join(L)})"
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
