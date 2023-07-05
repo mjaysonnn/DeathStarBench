@@ -22,7 +22,7 @@ def wrtie_plot():
     req_id = random.getrandbits(63)
     plot_id = i
     # plot = ''.join(random.choices(string.ascii_lowercase + string.digits, k=512))
-    plot = "plot: " + str(i)
+    plot = f"plot: {str(i)}"
     client.WritePlot(req_id, plot_id, plot, {})
   transport.close()
 
@@ -45,6 +45,6 @@ if __name__ == '__main__':
     wrtie_plot()
     read_plot()
   except ServiceException as se:
-    print('%s' % se.message)
+    print(f'{se.message}')
   except Thrift.TException as tx:
-    print('%s' % tx.message)
+    print(f'{tx.message}')

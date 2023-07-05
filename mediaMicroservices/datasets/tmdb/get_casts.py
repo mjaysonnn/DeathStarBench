@@ -12,7 +12,7 @@ def worker(api_key, movies):
       cast_ids.add(cast["id"])
   print("num_of_casts:", len(cast_ids))
   for cast_id in cast_ids:
-    cast_url = "https://api.themoviedb.org/3/person/" + str(cast_id)
+    cast_url = f"https://api.themoviedb.org/3/person/{str(cast_id)}"
     r = requests.request("GET", cast_url, params={"language": language, "api_key": api_key})
     if (r.status_code != 200):
       print("Failed to get popular_movie", "status_code:", r.status_code, "message:", r.text)

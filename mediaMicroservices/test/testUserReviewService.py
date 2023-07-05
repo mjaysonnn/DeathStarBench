@@ -33,7 +33,7 @@ def read_user_reviews():
   client = UserReviewService.Client(protocol)
 
   transport.open()
-  for i in range(100):
+  for _ in range(100):
     req_id = random.getrandbits(63)
     user_id = random.randint(0, 5)
     start = random.randint(0, 10)
@@ -48,6 +48,6 @@ if __name__ == '__main__':
     write_user_review()
     read_user_reviews()
   except ServiceException as se:
-    print('%s' % se.message)
+    print(f'{se.message}')
   except Thrift.TException as tx:
-    print('%s' % tx.message)
+    print(f'{tx.message}')

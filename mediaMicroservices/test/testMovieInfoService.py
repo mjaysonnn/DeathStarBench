@@ -21,18 +21,18 @@ def wrtie_movie_info():
   transport.open()
   for i in range(100):
     req_id = random.getrandbits(63)
-    movie_id = "movie_id_" + str(i)
-    title = "movie_" + str(i)
+    movie_id = f"movie_id_{str(i)}"
+    title = f"movie_{str(i)}"
     cast_id = random.randint(0, 96)
     casts = []
     for j in range(3):
-      cast = Cast(cast_id=j, character="character_"+str(j), cast_info_id=cast_id+j)
+      cast = Cast(cast_id=j, character=f"character_{str(j)}", cast_info_id=cast_id+j)
       casts.append(cast)
     plot_id = i
     thumbnail_ids = []
     photo_ids = []
     video_ids = []
-    for j in range(3):
+    for _ in range(3):
       thumbnail_ids.append(random.getrandbits(63))
       photo_ids.append(random.getrandbits(63))
       video_ids.append(random.getrandbits(63))
@@ -49,9 +49,9 @@ def read_movie_info():
   client = MovieInfoService.Client(protocol)
 
   transport.open()
-  for i in range(100):
+  for _ in range(100):
     req_id = random.getrandbits(63)
-    movie_id = "movie_id_" + str(random.randint(0, 99))
+    movie_id = f"movie_id_{random.randint(0, 99)}"
     print(client.ReadMovieInfo(req_id, movie_id, {}))
   transport.close()
 
@@ -60,6 +60,6 @@ if __name__ == '__main__':
     wrtie_movie_info()
     read_movie_info()
   except ServiceException as se:
-    print('%s' % se.message)
+    print(f'{se.message}')
   except Thrift.TException as tx:
-    print('%s' % tx.message)
+    print(f'{tx.message}')
